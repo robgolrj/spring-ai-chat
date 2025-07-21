@@ -4,3 +4,5 @@ spring:
   ai:
     openai:
       api-key: ${OPENAI_API_KEY}
+    deepseek:
+      api-key: ${DEEP_SEEK_API_KEY}

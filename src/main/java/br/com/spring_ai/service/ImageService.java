@@ -15,7 +15,15 @@ public class ImageService {
     @Autowired
     private OpenAiImageOptions openAiImageOptions;
 
+    @Autowired
+    private OpenAiImageOptions deepSeekImageOptions;
+
+
     public ImageResponse generateImage(String prompt) {
         return imageModel.call(new ImagePrompt(prompt, openAiImageOptions));
+    }
+
+    public ImageResponse generateImageDeepSeek(String prompt) {
+        return imageModel.call(new ImagePrompt(prompt, deepSeekImageOptions));
     }
 }

@@ -37,12 +37,26 @@ public class GenerativeAIController {
         return chatService.getResponseWithOptions(prompt);
     }
 
+    @GetMapping("/ask-ai-deepseek")
+    public String getResponseWithOptionsDeepSeek(@RequestParam String prompt) {
+        return chatService.getResponseWithOptionsDeepSeek(prompt);
+    }
+
     @GetMapping("/recipe-creator")
     public String getResponseWithOpstions(@RequestParam String ingredients,
         @RequestParam(defaultValue = "any") String cuisine,
         @RequestParam(defaultValue = "none") String dietaryRestrictions) {
 
         return recipeService.createRecipe(ingredients, cuisine, dietaryRestrictions);
+    }
+
+
+    @GetMapping("/recipe-creator-deepseek")
+    public String getResponseWithOpstionsDeepSeek(@RequestParam String ingredients,
+        @RequestParam(defaultValue = "any") String cuisine,
+        @RequestParam(defaultValue = "none") String dietaryRestrictions) {
+
+        return recipeService.createRecipeDeepSeek(ingredients, cuisine, dietaryRestrictions);
     }
 
     @GetMapping("/generate-image")
@@ -52,6 +66,17 @@ public class GenerativeAIController {
         List<String> imageUrls = imageResponse.getResults().stream()
             .map(image -> image.getOutput().getUrl()).
             toList();
+
+        return imageUrls;
+    }
+
+    @GetMapping("/generate-image-deepseek")
+    public List<String>  generateImagensDeepSeek(@RequestParam String prompt) {
+        ImageResponse imageResponse = imageService.generateImageDeepSeek(prompt);
+
+        List<String> imageUrls = imageResponse.getResults().stream()
+            .map(image -> image.getOutput().getUrl()).
+                toList();
 
         return imageUrls;
     }
