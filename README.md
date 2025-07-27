@@ -2,45 +2,40 @@
 
 Este é um projeto Java utilizando **Spring Boot** e a biblioteca **Spring AI**, que expõe uma API REST para interações em linguagem natural com modelos de IA. A aplicação permite:
 
-* Responder perguntas com texto,
-* Gerar receitas com base em ingredientes e restrições,
-* Criar imagens a partir de prompts.
+* Responder perguntas com texto (OpenAI e DeepSeek)
+* Gerar receitas com base em ingredientes, culinária e restrições alimentares
+* Criar imagens a partir de prompts (OpenAI e DeepSeek)
 
 ---
 
 ## 🚀 Funcionalidades
 
-### 🔹 `/ai/ask-ai`
+### 🔹 Chat com IA
 
-Responde uma pergunta simples baseada em linguagem natural.
+- `GET /ai/ask-ai?prompt=texto`  
+  Responde perguntas usando o modelo OpenAI.
 
-```http
-GET /ai/ask-ai?prompt=Qual%20a%20capital%20da%20França?
-```
+- `GET /ai/ask-ai-options?prompt=texto`  
+  Responde perguntas com opções personalizadas do modelo OpenAI.
 
-### 🔹 `/ai/ask-ai-options`
+- `GET /ai/ask-ai-deepseek?prompt=texto`  
+  Responde perguntas usando o modelo DeepSeek.
 
-Responde uma pergunta utilizando opções personalizadas do modelo (como temperatura e modelo especificado).
+### 🔹 Criação de receitas
 
-```http
-GET /ai/ask-ai-options?prompt=Me%20explique%20a%20teoria%20da%20relatividade
-```
+- `GET /ai/recipe-creator?ingredients=ingredientes&cuisine=tipo&dietaryRestrictions=restricoes`  
+  Gera receitas com base nos parâmetros usando OpenAI.
 
-### 🔹 `/ai/recipe-creator`
+- `GET /ai/recipe-creator-deepseek?ingredients=ingredientes&cuisine=tipo&dietaryRestrictions=restricoes`  
+  Gera receitas usando DeepSeek.
 
-Gera uma receita com base em ingredientes, tipo de culinária e restrições alimentares.
+### 🔹 Geração de imagens
 
-```http
-GET /ai/recipe-creator?ingredients=tomate,queijo,pão&cuisine=italiana&dietaryRestrictions=vegetariano
-```
+- `GET /ai/generate-image?prompt=texto`  
+  Gera imagens com DALL·E (OpenAI).
 
-### 🔹 `/ai/generate-image`
-
-Gera imagens a partir de um prompt de texto usando o modelo DALL·E.
-
-```http
-GET /ai/generate-image?prompt=uma%20cidade%20futurista%20à%20noite
-```
+- `GET /ai/generate-image-deepseek?prompt=texto`  
+  Gera imagens com Janus-Pro (DeepSeek).
 
 ---
 
@@ -48,9 +43,9 @@ GET /ai/generate-image?prompt=uma%20cidade%20futurista%20à%20noite
 
 * Java 17+
 * Spring Boot 3.x
-* [Spring AI](https://docs.spring.io/spring-ai/)
-* OpenAI (Chat e Image Models)
-* REST API
+* Spring AI
+* OpenAI e DeepSeek (Chat e Image Models)
+* Maven
 
 ---
 
@@ -59,8 +54,13 @@ GET /ai/generate-image?prompt=uma%20cidade%20futurista%20à%20noite
 ```
 br.com.spring_ai
 ├── controller           # Controladores REST
-├── service              # Serviços de negócio com uso da IA
-├── OpenAiConfig.java    # Configuração dos modelos OpenAI
+│   ├── GenerativeAIController.java
+│   ├── InfoController.java
+│   └── GobalAdviceController.java
+├── service              # Serviços de negócio
+├── OpenAiConfig.java    # Configuração dos modelos OpenAI/DeepSeek
+├── WebConfig.java       # Configuração de CORS
+├── SpringAiApplication.java
 ```
 
 ---
@@ -68,33 +68,41 @@ br.com.spring_ai
 ## 🛠️ Configuração
 
 1. **Pré-requisitos:**
-
    * Java 17+
-   * Maven ou Gradle
-   * Chave de API da OpenAI (definir via variável de ambiente ou application.properties)
+   * Maven
+   * Chaves de API válidas para OpenAI e DeepSeek
 
-2. **Dependência principal:**
-   O projeto deve conter a dependência do Spring AI no `pom.xml` ou `build.gradle`.
+2. **Variáveis de ambiente:**
 
-3. **Variáveis de ambiente esperadas:**
+   ```shell
+   set OPENAI_API_KEY=your_openai_key
+   set DEEP_SEEK_API_KEY=your_deepseek_key
+   ```
 
-   ```bash
-   SPRING_AI_OPENAI_API_KEY=your-api-key
+   Ou configure no arquivo `src/main/resources/application.yaml`:
+
+   ```yaml
+   spring:
+     ai:
+       openai:
+         api-key: ${OPENAI_API_KEY}
+       deepseek:
+         api-key: ${DEEP_SEEK_API_KEY}
    ```
 
 ---
 
 ## 🧪 Testando a API
 
-Recomenda-se usar ferramentas como:
+Ferramentas recomendadas:
 
-* [Postman](https://www.postman.com/)
-* [Insomnia](https://insomnia.rest/)
-* `curl`
+* Postman
+* Insomnia
+* curl
 
-Exemplo com curl:
+Exemplo:
 
-```bash
+```shell
 curl "http://localhost:8080/ai/ask-ai?prompt=Qual%20o%20significado%20da%20vida?"
 ```
 
@@ -102,21 +110,36 @@ curl "http://localhost:8080/ai/ask-ai?prompt=Qual%20o%20significado%20da%20vida?
 
 ## 📦 Build & Execução
 
-```bash
-./mvnw spring-boot:run
+```shell
+mvn clean install
+mvn spring-boot:run
 ```
 
 Ou para criar o JAR:
 
-```bash
-./mvnw clean package
-java -jar target/spring-ai-chat-api.jar
+```shell
+mvn clean package
+java -jar target/spring-ai-*.jar
 ```
+
+---
+
+## 🌐 CORS
+
+A aplicação permite requisições de `http://localhost:8080/` e `http://localhost:3000/` para facilitar o desenvolvimento front-end.
 
 ---
 
 ## 📌 Observações
 
-* O projeto usa por padrão o modelo `gpt-4.1-nano` para conversação e `dall-e-3` para geração de imagens.
-* A temperatura está configurada como 0.4 para respostas mais objetivas.
-* O sistema é modular e pode ser estendido facilmente com novos endpoints.
+* Modelos padrão: `gpt-4.1-nano` (chat OpenAI), `dall-e-3` (imagem OpenAI), `janus-pro` (imagem DeepSeek).
+* Temperatura configurada em 0.4 para respostas objetivas.
+* Tratamento global de erros via `GobalAdviceController`.
+* Página inicial disponível em `/` com links para todos os endpoints.
+* Projeto modular e extensível.
+
+---
+
+## 📝 Licença
+
+Projeto de exemplo para fins educacionais.
