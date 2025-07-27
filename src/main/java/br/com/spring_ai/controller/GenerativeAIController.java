@@ -25,8 +25,6 @@ public class GenerativeAIController {
     @Autowired
     private ImageService imageService;
 
-
-
     @GetMapping("/ask-ai")
     public String getResponse(@RequestParam String prompt) {
         return chatService.getResponse(prompt);
